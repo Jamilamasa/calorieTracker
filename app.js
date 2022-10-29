@@ -1,3 +1,11 @@
+/*
+I hard coded the data structure at first
+The ItemCtrl handles everything that has to do with the items (item constructor & data structure)
+The UICtrl handles everything that has to do with the UI (Populating the list, getting the user input)
+*/
+
+
+
 // Storge Controller
 
 // Item Controller
@@ -24,6 +32,15 @@ const ItemCtrl = (function(){
         getItems: function(){
             return data.items;
         },
+        addItems: function(name, calories){
+            let ID;
+            // Create id
+            if(data.items.length > 0){
+                ID = data.items[data.items.length - 1].id + 1;
+            } else {
+                ID = 0
+            }
+        },
         logData: function(){
             return data;
         }
@@ -32,7 +49,10 @@ const ItemCtrl = (function(){
 // UI Controller
 const UICtrl = (function(){
     const UISelectors = {
-        itemList: '#item-list'
+        itemList: '#item-list',
+        addButton: '.add-btn',
+        itemName: '#item-name',
+        itemCalories: '#item-calories'
     }
 
     return{
@@ -45,11 +65,40 @@ const UICtrl = (function(){
             </li>`
             })
             document.querySelector(UISelectors.itemList).innerHTML = list;
+        },
+        getItemInput: function(){
+            return {
+                name: document.querySelector(UISelectors.itemName).value,
+                calories: document.querySelector(UISelectors.itemCalories).value
+            }
+        },
+        getSelectors: function(){
+            return UISelectors;
         }
     }
 })()
 // App Controller
 const app = (function(ItemCtrl, UICtrl){
+    // Load event listeners
+    function loadEventListeners() {
+        // Get UI selectors
+        const UISelectors = UICtrl.getSelectors();
+        // Add event listeners
+        document.querySelector(UISelectors.addButton).addEventListener('click', itemAddSubmit)
+    }
+
+    function itemAddSubmit(e){
+        //Get form item input
+        const input = UICtrl.getItemInput()
+        
+        // Check for a name and calorie input
+        if(input.name !== '' && input.calories !== ''){
+            // Add item
+            const newItem = ItemCtrl.addItem(input.name, input.calories);
+        }
+
+        e.preventDefault()
+    }
     
     // Public methods
     return {
@@ -59,6 +108,9 @@ const app = (function(ItemCtrl, UICtrl){
             
             // Populate list with Items
             UICtrl.populateItemList(items);
+
+            // Load event listeners
+            loadEventListeners();
         }
     }
 })(ItemCtrl, UICtrl)
